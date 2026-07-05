@@ -46,7 +46,14 @@ async function api(action, payload = {}, opts = {}) {
   }
 }
 
-const show = (v) => { $$('.view').forEach(s => s.classList.remove('active')); $('view-' + v).classList.add('active'); window.scrollTo(0, 0); };
+const BANNER_VIEWS = ['instalar', 'login', 'inicio'];
+const show = (v) => {
+  $$('.view').forEach(s => s.classList.remove('active'));
+  $('view-' + v).classList.add('active');
+  const bb = $('brandBanner'), img = bb && bb.querySelector('img');
+  if (bb) bb.classList.toggle('hidden', !(BANNER_VIEWS.includes(v) && img && img.getAttribute('src')));
+  window.scrollTo(0, 0);
+};
 const toast = (t, i = 'info') => Swal.fire({ text: t, icon: i, confirmButtonColor: '#14231c' });
 const textoDe = (clave) => (S.textos[clave] || {}).CUERPO || '';
 
