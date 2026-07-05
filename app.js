@@ -400,9 +400,10 @@ function construirFormulario(pre) {
     <div class="fld fld-full"><label>Correo</label><input id="f_CORREO" type="email" value="${pre.CORREO || ''}"></div>
     <div class="fld"><label>Departamento</label><select id="f_DEPARTAMENTO"><option value="">—</option>${opciones(deptos, pre.DEPARTAMENTO)}</select></div>
     <div class="fld"><label>Municipio</label><select id="f_MUNICIPIO"><option value="">—</option></select></div>
-    <div class="fld"><label>Contacto de emergencia</label><input id="f_CONTACTO_EMERGENCIA" value="${pre.CONTACTO_EMERGENCIA || ''}"></div>
-    <div class="fld"><label>Tel. emergencia (10 dígitos)</label><input id="f_TEL_EMERGENCIA" inputmode="numeric" maxlength="10" value="${pre.TEL_EMERGENCIA || ''}"></div>
+    <div class="fld"><label id="lbl_contacto">Contacto de emergencia</label><input id="f_CONTACTO_EMERGENCIA" value="${pre.CONTACTO_EMERGENCIA || ''}"></div>
+    <div class="fld"><label id="lbl_tel_emerg">Tel. emergencia (10 dígitos)</label><input id="f_TEL_EMERGENCIA" inputmode="numeric" maxlength="10" value="${pre.TEL_EMERGENCIA || ''}"></div>
     <div class="fld fld-full"><label>Categoría</label><select id="f_CATEGORIA"><option value="">Selecciona tu género primero</option></select></div>
+    <div id="notaMenor" class="nota-menor fld-full hidden">Estás inscribiendo a un menor: los datos personales son del niño o niña, y el contacto de emergencia es el de su padre, madre o acudiente.</div>
     <div id="catInfo" class="datos-grid fld-full" style="margin:2px 0"></div>
     <div class="fld fld-full">
       <label>Fecha de nacimiento</label>
@@ -427,9 +428,20 @@ function construirFormulario(pre) {
   if (pre.CATEGORIA) { $('f_CATEGORIA').value = pre.CATEGORIA; mostrarInfoCategoria(); }
 }
 
+const CATS_MENOR = ['PJ', 'JU', 'PB'];                 // categorías de menores (requieren autorización)
+const esMenorCat = (p) => CATS_MENOR.includes(p);
+const esUnisexCat = (c) => {                            // categorías para ambos géneros (niños y niñas)
+  const g = String(c.GENERO || '').trim().toUpperCase();
+  return ['MIXTO', 'AMBOS', 'UNISEX', 'U', 'MF', 'FM'].includes(g) || c.PREFIJO === 'PB';
+};
+
 function refrescarCategorias() {
   const g = ($('f_GENERO').value || '').charAt(0).toUpperCase();
-  const permit = S.cats.filter(c => (g === 'F') ? (c.PREFIJO === 'DM' || c.PREFIJO === 'BF') : (g === 'M') ? (c.PREFIJO !== 'DM' && c.PREFIJO !== 'BF') : false);
+  const permit = S.cats.filter(c =>
+    esUnisexCat(c) ? (g === 'M' || g === 'F')
+      : (g === 'F') ? (c.PREFIJO === 'DM' || c.PREFIJO === 'BF')
+        : (g === 'M') ? (c.PREFIJO !== 'DM' && c.PREFIJO !== 'BF')
+          : false);
   $('f_CATEGORIA').innerHTML = '<option value="">—</option>' + permit.map(c => `<option value="${c.PREFIJO}">${c.NOMBRE}</option>`).join('');
   $('catInfo').innerHTML = '';
 }
@@ -443,8 +455,13 @@ function refrescarMunicipios(sel) {
 function mostrarInfoCategoria() {
   const pref = $('f_CATEGORIA').value;
   const c = S.cats.find(x => x.PREFIJO === pref);
-  const menor = (pref === 'PJ' || pref === 'JU');
+  const menor = esMenorCat(pref);
   $('autorizacionSlot').classList.toggle('hidden', !menor);
+  // Etiquetas del contacto de emergencia según sea menor (acudiente) o adulto
+  const lc = $('lbl_contacto'), lt = $('lbl_tel_emerg'), nota = $('notaMenor');
+  if (lc) lc.textContent = menor ? 'Nombre del padre, madre o acudiente' : 'Contacto de emergencia';
+  if (lt) lt.textContent = menor ? 'Celular del acudiente (10 dígitos)' : 'Tel. emergencia (10 dígitos)';
+  if (nota) nota.classList.toggle('hidden', !menor);
   if (!c) { $('catInfo').innerHTML = ''; return; }
   $('catInfo').innerHTML = `
     <div class="item"><div class="k">Vueltas</div><div class="v">${c.VUELTAS}</div></div>
@@ -560,7 +577,7 @@ async function recolectarForm() {
     CATEGORIA: g('f_CATEGORIA'), FECHA_NACIMIENTO: S.fechaNac
   };
   const foto = await fileToB64($('f_FOTO')); if (foto) { f.FOTO_B64 = foto.b64; f.FOTO_MIME = foto.mime; }
-  const menor = (f.CATEGORIA === 'PJ' || f.CATEGORIA === 'JU');
+  const menor = esMenorCat(f.CATEGORIA);
   if (menor) { const a = await fileToB64($('f_AUTORIZACION')); if (a) { f.AUTORIZACION_B64 = a.b64; f.AUTORIZACION_MIME = a.mime; } }
   return f;
 }
