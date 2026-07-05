@@ -365,8 +365,15 @@ async function flujoInscripcion() {
     title: 'Consentimiento Informado', okText: 'Completar registro', cancelText: 'Salir',
     html: checksHtml,
     onOk: (host) => {
-      const todos = ['ck1', 'ck2', 'ck3'].every(id => host.querySelector('#' + id).checked);
-      if (!todos) { toast('Debes aceptar los tres recuadros para continuar.', 'warning'); return false; }
+      const ids = ['ck1', 'ck2', 'ck3'];
+      const faltante = ids.map(id => host.querySelector('#' + id)).find(el => !el.checked);
+      if (faltante) {
+        const linea = faltante.closest('.check-line');
+        linea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        linea.classList.add('shake');
+        setTimeout(() => linea.classList.remove('shake'), 500);
+        return false;
+      }
       return true;
     }
   });
