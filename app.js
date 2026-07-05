@@ -1,7 +1,7 @@
 /* ================= CLÁSICA 2026 — App Participante =================
    Reescritura con el design system de SEP-GROUP (loader global, login por
    pestañas, PIN local por dispositivo, selector iOS de fecha, driveImg_,
-   modales propios e instalación PWA), conservando los contratos de la API.
+   modales propios e instalación PWA), conservando los contratos de la API. 
    ================================================================= */
 
 /* URL /exec del Web App de Apps Script. */
