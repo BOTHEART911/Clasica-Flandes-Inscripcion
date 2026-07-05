@@ -5,7 +5,7 @@
    ================================================================= */
 
 /* URL /exec del Web App de Apps Script. */
-const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec'; 
+const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec';
 
 /* ---------- estado ---------- */
 const S = { boot: null, cfg: {}, cats: [], textos: {}, doc: '', inscrito: null, form: {}, fechaNac: '', editando: false };
@@ -56,6 +56,14 @@ const show = (v) => {
 };
 const toast = (t, i = 'info') => Swal.fire({ text: t, icon: i, confirmButtonColor: '#14231c' });
 const textoDe = (clave) => (S.textos[clave] || {}).CUERPO || '';
+/* Premio: si es numérico → moneda ($500.000); si es texto (ej. "Sorpresa") → tal cual. */
+const fmtPremio = (v) => {
+  const s = String(v == null ? '' : v).trim();
+  if (!s) return '—';
+  if (/[^\d.,\s$]/.test(s)) return s;                 // contiene letras u otros → texto literal
+  const n = Number(s.replace(/[^\d]/g, ''));
+  return isNaN(n) ? s : '$' + n.toLocaleString('es-CO');
+};
 
 /* ================= UTILIDADES DE IMAGEN Y FECHA ================= */
 /* Normaliza cualquier URL de foto a un formato renderizable en <img>.
@@ -466,7 +474,7 @@ function mostrarInfoCategoria() {
   $('catInfo').innerHTML = `
     <div class="item"><div class="k">Vueltas</div><div class="v">${c.VUELTAS}</div></div>
     <div class="item"><div class="k">Distancia</div><div class="v">${c.KM} km</div></div>
-    <div class="item"><div class="k">1° / 2° / 3°</div><div class="v" style="font-size:.9rem">$${(+c.PREMIO_1).toLocaleString('es-CO')} · $${(+c.PREMIO_2).toLocaleString('es-CO')} · $${(+c.PREMIO_3).toLocaleString('es-CO')}</div></div>
+    <div class="item"><div class="k">1° / 2° / 3°</div><div class="v" style="font-size:.9rem">${fmtPremio(c.PREMIO_1)} · ${fmtPremio(c.PREMIO_2)} · ${fmtPremio(c.PREMIO_3)}</div></div>
     <div class="item cat-hero"><img src="${driveImg_(c.ICONO_URL)}"><div class="v" style="font-size:.9rem">${c.NOMBRE}</div></div>`;
 }
 
@@ -636,7 +644,7 @@ function entrarInicio() {
   $('inicioEstado').textContent = r.ESTADO;
   $('inicioDatos').innerHTML = [
     ['Dorsal', r.CODIGO], ['Categoría', r.CAT_NOMBRE || r.CATEGORIA], ['Vueltas', r.VUELTAS],
-    ['Distancia', (r.KM || '') + ' km'], ['RH', r.RH_CORTO || r.RH], ['1° premio', '$' + (+r.PREMIO_1 || 0).toLocaleString('es-CO')]
+    ['Distancia', (r.KM || '') + ' km'], ['RH', r.RH_CORTO || r.RH], ['1° premio', fmtPremio(r.PREMIO_1)]
   ].map(x => `<div class="item"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
   // Icono de la categoría en la cabecera de "Tu competencia"
   const cat = (S.cats || []).find(c => c.PREFIJO === (r.CATEGORIA || '')) || {};
