@@ -5,7 +5,7 @@
    ================================================================= */
 
 /* URL /exec del Web App de Apps Script. */
-const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec'; 
+const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec';
 
 /* ---------- estado ---------- */
 const S = { boot: null, cfg: {}, cats: [], textos: {}, doc: '', inscrito: null, form: {}, fechaNac: '', editando: false };
@@ -614,6 +614,12 @@ function entrarInicio() {
     ['Dorsal', r.CODIGO], ['Categoría', r.CAT_NOMBRE || r.CATEGORIA], ['Vueltas', r.VUELTAS],
     ['Distancia', (r.KM || '') + ' km'], ['RH', r.RH_CORTO || r.RH], ['1° premio', '$' + (+r.PREMIO_1 || 0).toLocaleString('es-CO')]
   ].map(x => `<div class="item"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  // Icono de la categoría en la cabecera de "Tu competencia"
+  const cat = (S.cats || []).find(c => c.PREFIJO === (r.CATEGORIA || '')) || {};
+  const icoCat = $('inicioCatIcono');
+  const urlCat = r.CAT_ICONO || r.CAT_ICONO_URL || cat.ICONO_URL || '';
+  if (urlCat) { icoCat.src = driveImg_(urlCat); icoCat.hidden = false; }
+  else icoCat.hidden = true;
   iniciarContador();
   show('inicio');
 }
