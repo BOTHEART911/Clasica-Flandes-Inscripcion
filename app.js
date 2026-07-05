@@ -5,7 +5,7 @@
    ================================================================= */
 
 /* URL /exec del Web App de Apps Script. */
-const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec'; 
+const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec';
 
 /* ---------- estado ---------- */
 const S = { boot: null, cfg: {}, cats: [], textos: {}, doc: '', inscrito: null, form: {}, fechaNac: '', editando: false };
@@ -417,7 +417,7 @@ function construirFormulario(pre) {
       <label>Fecha de nacimiento</label>
       <button type="button" id="btnFecha" class="date-btn">${IC.cal}<span id="btnFechaTxt">${fechaPre ? fechaTextoDia_(fechaPre) : 'Seleccionar fecha'}</span></button>
     </div>
-    <div id="autorizacionSlot" class="fld fld-full hidden"><label>Autorización del acudiente (PDF/imagen) — obligatoria para menores</label><input id="f_AUTORIZACION" type="file" accept="application/pdf,image/*"></div>
+    <div id="autorizacionSlot" class="fld hidden"><label>Documento del acudiente (6–10 dígitos)</label><input id="f_ACUDIENTE_DOC" inputmode="numeric" maxlength="10" value="${pre.ACUDIENTE_DOC || ''}"></div>
     <div class="fld fld-full">
       <label>Foto de perfil (opcional)</label>
       ${fotoPrev ? `<img src="${fotoPrev}" alt="Foto actual" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);margin-bottom:8px">` : ''}
@@ -436,7 +436,7 @@ function construirFormulario(pre) {
   if (pre.CATEGORIA) { $('f_CATEGORIA').value = pre.CATEGORIA; mostrarInfoCategoria(); }
 }
 
-const CATS_MENOR = ['PJ', 'JU', 'PB'];                 // categorías de menores (requieren autorización)
+const CATS_MENOR = ['PB', 'PJ'];                       // categorías con acudiente (Push Bike, Prejuvenil)
 const esMenorCat = (p) => CATS_MENOR.includes(p);
 const esUnisexCat = (c) => {                            // categorías para ambos géneros (niños y niñas)
   const g = String(c.GENERO || '').trim().toUpperCase();
@@ -585,8 +585,7 @@ async function recolectarForm() {
     CATEGORIA: g('f_CATEGORIA'), FECHA_NACIMIENTO: S.fechaNac
   };
   const foto = await fileToB64($('f_FOTO')); if (foto) { f.FOTO_B64 = foto.b64; f.FOTO_MIME = foto.mime; }
-  const menor = esMenorCat(f.CATEGORIA);
-  if (menor) { const a = await fileToB64($('f_AUTORIZACION')); if (a) { f.AUTORIZACION_B64 = a.b64; f.AUTORIZACION_MIME = a.mime; } }
+  if (esMenorCat(f.CATEGORIA)) f.ACUDIENTE_DOC = g('f_ACUDIENTE_DOC').replace(/\D/g, '');
   return f;
 }
 
@@ -605,7 +604,7 @@ function validarClienteForm(f) {
   if (!/^\d{10}$/.test(f.TEL_EMERGENCIA)) e.push('Tel. emergencia (10 dígitos)');
   if (!f.CATEGORIA) e.push('Categoría');
   if (!f.FECHA_NACIMIENTO) e.push('Fecha de nacimiento');
-  if ((f.CATEGORIA === 'PJ' || f.CATEGORIA === 'JU') && !f.AUTORIZACION_B64 && !S.editando) e.push('Autorización del acudiente');
+  if (esMenorCat(f.CATEGORIA) && !/^\d{6,10}$/.test(f.ACUDIENTE_DOC || '')) e.push('Documento del acudiente (6–10 dígitos)');
   return e;
 }
 
@@ -615,10 +614,13 @@ async function irAResumen() {
   if (errs.length) return toast('Faltan o son inválidos: ' + errs.join(', '), 'warning');
   S.form = Object.assign(S.form, f);
   const c = S.cats.find(x => x.PREFIJO === f.CATEGORIA) || {};
+  const menor = esMenorCat(f.CATEGORIA);
   const filas = [
     ['Documento', f.DOCUMENTO], ['Nombre', f.NOMBRES + ' ' + f.APELLIDOS], ['Género', f.GENERO],
     ['RH', f.RH], ['Celular', f.CELULAR], ['EPS', f.EPS], ['Correo', f.CORREO],
-    ['Ubicación', f.MUNICIPIO + ', ' + f.DEPARTAMENTO], ['Emergencia', f.CONTACTO_EMERGENCIA + ' · ' + f.TEL_EMERGENCIA],
+    ['Ubicación', f.MUNICIPIO + ', ' + f.DEPARTAMENTO],
+    [menor ? 'Acudiente' : 'Emergencia', f.CONTACTO_EMERGENCIA + ' · ' + f.TEL_EMERGENCIA],
+    ...(menor ? [['Doc. acudiente', f.ACUDIENTE_DOC]] : []),
     ['Categoría', c.NOMBRE || f.CATEGORIA], ['Recorrido', (c.VUELTAS || '') + ' vueltas · ' + (c.KM || '') + ' km'],
     ['Nacimiento', fechaTextoDia_(f.FECHA_NACIMIENTO)]
   ];
