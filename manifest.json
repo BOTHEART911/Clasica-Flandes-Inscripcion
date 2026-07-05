@@ -2,6 +2,7 @@
   "name": "Clásica de la Independencia – Flandes 2026",
   "short_name": "Clásica 2026",
   "description": "Inscripción a la Clásica de la Independencia – Flandes 2026",
+  "scope": "./",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
@@ -9,6 +10,7 @@
   "theme_color": "#14231c",
   "icons": [
     { "src": "https://res.cloudinary.com/dqqeavica/image/upload/v1783207400/clasica_wtdi9j.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "https://res.cloudinary.com/dqqeavica/image/upload/v1783207400/clasica_wtdi9j.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    { "src": "https://res.cloudinary.com/dqqeavica/image/upload/v1783207400/clasica_wtdi9j.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "https://res.cloudinary.com/dqqeavica/image/upload/v1783207400/clasica_wtdi9j.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
