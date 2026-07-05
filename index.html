@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14231c">
+<title>Clásica de la Independencia · Flandes 2026</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <header class="topbar">
+    <img id="appBanner" class="banner" alt="Clásica de la Independencia">
+    <div class="topbar-row">
+      <img id="appIcon" class="app-icon" alt="">
+      <div class="brand">
+        <div class="brand-title">Clásica de la Independencia</div>
+        <div class="brand-sub">Flandes — Tolima · 2026</div>
+      </div>
+      <button id="btnSalir" class="ghost hidden">Salir</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- LOGIN -->
+    <section id="view-login" class="view active">
+      <div class="card center">
+        <h1 class="serif">Bienvenido</h1>
+        <p class="muted">Ingresa tu documento para inscribirte o consultar tu registro.</p>
+        <label class="field">
+          <span>Número de documento</span>
+          <input id="loginDoc" inputmode="numeric" maxlength="10" placeholder="Ej. 1070590350" autocomplete="off">
+        </label>
+        <button id="btnLogin" class="primary block">Continuar</button>
+      </div>
+    </section>
+
+    <!-- FORMULARIO -->
+    <section id="view-form" class="view">
+      <div class="card">
+        <h2 class="serif">Formulario de inscripción</h2>
+        <p class="muted">Todos los campos son obligatorios salvo la foto.</p>
+        <div id="formFields" class="form-grid"></div>
+        <div class="row-end">
+          <button id="btnVerResumen" class="primary">Ver resumen</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESUMEN -->
+    <section id="view-resumen" class="view">
+      <div class="card">
+        <h2 class="serif">Resumen</h2>
+        <div id="resumenBox" class="resumen"></div>
+        <div class="row-between">
+          <button id="btnEditarResumen" class="ghost">Editar</button>
+          <button id="btnConfirmar" class="primary">Confirmar inscripción</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- INICIO (sesión) -->
+    <section id="view-inicio" class="view">
+      <div class="card hero">
+        <img id="inicioIcono" class="cat-icon" alt="">
+        <img id="inicioFoto" class="perfil" alt="">
+        <h2 id="inicioNombre" class="serif"></h2>
+        <div id="inicioEstado" class="badge"></div>
+      </div>
+
+      <div class="card">
+        <h3>Cuenta regresiva</h3>
+        <div id="countdown" class="countdown"></div>
+      </div>
+
+      <div class="card">
+        <h3>Tu competencia</h3>
+        <div id="inicioDatos" class="datos-grid"></div>
+      </div>
+
+      <div class="acciones">
+        <button id="btnEditarRegistro" class="primary">Editar registro</button>
+        <button id="btnMencion" class="gold">Generar mención</button>
+        <button id="btnComunicados" class="ghost">Comunicados</button>
+      </div>
+    </section>
+
+    <!-- COMUNICADOS -->
+    <section id="view-comunicados" class="view">
+      <div class="card">
+        <div class="row-between">
+          <h2 class="serif">Comunicados</h2>
+          <button id="btnVolverInicio" class="ghost">Volver</button>
+        </div>
+        <div id="comunicadosList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span id="footVersion"></span> · Comité Organizador Institucional
+  </footer>
+
+  <script src="version.js"></script>
+  <script src="ubicaciones.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js?v=' + (window.APP_VERSION || '1')).catch(() => {});
+    }
+  </script>
+</body>
+</html>
