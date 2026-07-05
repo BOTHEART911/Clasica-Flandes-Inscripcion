@@ -4,7 +4,7 @@
    institucional de la Clásica (pino / latón / papel / oxblood).
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap'); 
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
   /* Paleta institucional Clásica */
@@ -312,6 +312,8 @@ input[type=file] { padding: 10px; font-size: .9rem; }
 #comunicadosList .com .fecha { font-size: .72rem; color: var(--text-muted); font-weight: 600; }
 #comunicadosList .com img { max-width: 100%; border-radius: 8px; margin-top: 8px; }
 
+.brand-banner { display: flex; justify-content: center; align-items: center; padding: 10px 16px 0; }
+.brand-banner img { max-width: 100%; max-height: 64px; width: auto; object-fit: contain; }
 .foot { text-align: center; padding: 14px; font-size: .72rem; color: var(--text-muted); letter-spacing: .04em; }
 
 /* ── Instalación PWA ────────────────────────────────────── */
