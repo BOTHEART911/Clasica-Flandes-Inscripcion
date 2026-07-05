@@ -330,7 +330,9 @@ input[type=file] { padding: 10px; font-size: .9rem; }
 .modal-head h2 { font-family: var(--font-display); font-size: 1.12rem; color: var(--primary); margin: 0; }
 .modal-body { padding: 20px 22px; overflow-y: auto; text-align: left; }
 .modal-body :is(p,li) { line-height: 1.5; }
-.modal-doc { font-size: .92rem; color: var(--text-soft); }
+.modal-doc { font-size: .92rem; color: var(--text-soft); text-align: justify; text-justify: inter-word; }
+@keyframes shakeX { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+.check-line.shake { animation: shakeX .4s; border-color: var(--accent); }
 .modal-doc h1, .modal-doc h2, .modal-doc h3 { color: var(--primary); font-family: var(--font-display); }
 .modal-foot { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
 .modal-foot .btn { min-width: 120px; }
