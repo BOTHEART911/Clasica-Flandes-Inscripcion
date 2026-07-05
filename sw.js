@@ -1,7 +1,7 @@
 /* Service Worker — Clásica 2026 Participante.
    network-first para navegación (con shell de respaldo en caché) y
    cache-first para estáticos del propio origen. NUNCA intercepta las
-   llamadas a script.google.com (API /exec) ni a Firebase. */
+   llamadas a script.google.com (API /exec) ni a Firebase. */ 
 const CACHE = 'clasica-part-v5';
 const SHELL = ['./index.html', './styles.css', './app.js', './ubicaciones.js', './version.js', './manifest.json'];
 
