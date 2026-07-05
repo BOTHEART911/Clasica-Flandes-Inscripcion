@@ -1,6 +1,6 @@
 /* ================= CLÁSICA 2026 — App Participante ================= */
 /* Pega aquí la URL /exec de tu Web App de Apps Script tras desplegar. */
-const API_BASE = 'PEGA_AQUI_LA_URL_EXEC';
+const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec';
 
 /* ---------- estado ---------- */
 const S = { boot: null, cfg: {}, cats: [], textos: {}, doc: '', inscrito: null, form: {}, fechaNac: '' };
