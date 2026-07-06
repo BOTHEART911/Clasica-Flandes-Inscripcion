@@ -408,8 +408,8 @@ function construirFormulario(pre) {
   const fechaPre = pre.FECHA_NACIMIENTO ? soloFechaISO_(pre.FECHA_NACIMIENTO) : '';
   const fotoPrev = pre.FOTO_URL ? driveImg_(pre.FOTO_URL) : '';
   const html = `
-    <div class="fld"><label>Nombres</label><input id="f_NOMBRES" value="${pre.NOMBRES || ''}"></div>
-    <div class="fld"><label>Apellidos</label><input id="f_APELLIDOS" value="${pre.APELLIDOS || ''}"></div>
+    <div class="fld"><label>Nombres</label><input id="f_NOMBRES" style="text-transform:uppercase" value="${pre.NOMBRES || ''}"></div>
+    <div class="fld"><label>Apellidos</label><input id="f_APELLIDOS" style="text-transform:uppercase" value="${pre.APELLIDOS || ''}"></div>
     <div class="fld"><label>Género</label><select id="f_GENERO"><option value="">—</option>${opciones([{ value: 'Masculino', label: 'Masculino' }, { value: 'Femenino', label: 'Femenino' }], g)}</select></div>
     <div class="fld"><label>RH</label><select id="f_RH"><option value="">—</option>${opciones(rhOpts, pre.RH)}</select></div>
     <div class="fld"><label>Celular (10 dígitos)</label><input id="f_CELULAR" inputmode="numeric" maxlength="10" value="${pre.CELULAR || ''}"></div>
@@ -587,7 +587,7 @@ async function recolectarForm() {
   const g = (id) => ($(id) ? $(id).value.trim() : '');
   const f = {
     DOCUMENTO: S.doc,
-    NOMBRES: g('f_NOMBRES'), APELLIDOS: g('f_APELLIDOS'), GENERO: g('f_GENERO'), RH: g('f_RH'),
+    NOMBRES: g('f_NOMBRES').toUpperCase(), APELLIDOS: g('f_APELLIDOS').toUpperCase(), GENERO: g('f_GENERO'), RH: g('f_RH'),
     CELULAR: g('f_CELULAR').replace(/\D/g, ''), EPS: g('f_EPS'), CORREO: g('f_CORREO'),
     DEPARTAMENTO: g('f_DEPARTAMENTO'), MUNICIPIO: g('f_MUNICIPIO'),
     CONTACTO_EMERGENCIA: g('f_CONTACTO_EMERGENCIA'), TEL_EMERGENCIA: g('f_TEL_EMERGENCIA').replace(/\D/g, ''),
@@ -638,12 +638,25 @@ async function irAResumen() {
 }
 
 async function confirmar() {
+  Swal.fire({
+    title: 'Creando tu registro',
+    html: `<div style="text-align:left;line-height:1.5">Estoy creando el registro y documentos:
+      <ul style="margin:8px 0;padding-left:18px">
+        <li>Reglamento</li>
+        <li>Consentimiento Informado</li>
+        <li>Dorsal <span style="color:#8a8266">(lo recibirás el día de la competencia)</span></li>
+      </ul>
+      <b>No salgas de la App mientras termino.</b><br>¡Estamos a unos pocos segundos!</div>`,
+    allowOutsideClick: false, allowEscapeKey: false, showConfirmButton: false,
+    didOpen: () => Swal.showLoading()
+  });
   try {
-    const r = await api('crearInscrito', { inscrito: S.form });
+    const r = await api('crearInscrito', { inscrito: S.form }, { silent: true });
     S.inscrito = r;
+    Swal.close();
     await Swal.fire({ title: '¡Inscripción confirmada!', html: `Tu dorsal es <b>${r.CODIGO}</b>.<br>Revisa tu correo.`, icon: 'success', confirmButtonColor: '#14231c' });
     entrarInicio();
-  } catch (e) { toast(e.message, 'error'); }
+  } catch (e) { Swal.close(); toast(e.message, 'error'); }
 }
 
 /* ================= INICIO (sesión) ================= */
