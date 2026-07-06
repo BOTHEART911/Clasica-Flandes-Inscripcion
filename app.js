@@ -3,7 +3,7 @@
    pestañas, PIN local por dispositivo, selector iOS de fecha, driveImg_,
    modales propios e instalación PWA), conservando los contratos de la API.
    ================================================================= */
-
+ 
 /* URL /exec del Web App de Apps Script. */
 const API_BASE = 'https://script.google.com/macros/s/AKfycbxnc3ajRaV6-v9TSfBnVEdYUyWSKcTkbJlHsjpUV6UHJ--I9euyVdRIJrvpStGA-FBR/exec';
  
