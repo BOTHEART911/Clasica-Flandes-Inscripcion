@@ -413,7 +413,7 @@ function construirFormulario(pre) {
     <div class="fld"><label>Género</label><select id="f_GENERO"><option value="">—</option>${opciones([{ value: 'Masculino', label: 'Masculino' }, { value: 'Femenino', label: 'Femenino' }], g)}</select></div>
     <div class="fld"><label>RH</label><select id="f_RH"><option value="">—</option>${opciones(rhOpts, pre.RH)}</select></div>
     <div class="fld"><label>Celular (10 dígitos)</label><input id="f_CELULAR" inputmode="numeric" maxlength="10" value="${pre.CELULAR || ''}"></div>
-    <div class="fld"><label>EPS</label><select id="f_EPS"><option value="">—</option>${opciones([...(S.boot.eps || []), 'Otra'], pre.EPS)}</select></div>
+    <div class="fld"><label>EPS</label><select id="f_EPS"><option value="">—</option>${opciones([...(S.boot.eps || []), 'OTRA'], pre.EPS)}</select></div>
     <div class="fld fld-full"><label>Correo</label><input id="f_CORREO" type="email" value="${pre.CORREO || ''}"></div>
     <div class="fld"><label>Departamento</label><select id="f_DEPARTAMENTO"><option value="">—</option>${opciones(deptos, pre.DEPARTAMENTO)}</select></div>
     <div class="fld"><label>Municipio</label><select id="f_MUNICIPIO"><option value="">—</option></select></div>
