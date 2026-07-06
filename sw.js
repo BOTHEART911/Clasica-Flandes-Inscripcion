@@ -3,7 +3,7 @@
    cache-first para estáticos del propio origen. NUNCA intercepta las
    llamadas a script.google.com (API /exec) ni a Firebase. */
 const CACHE = 'clasica-part-v8';
-const SHELL = ['./index.html', './styles.css', './app.js', './ubicaciones.js', './version.js', './manifest.json'];
+const SHELL = ['./index.html', './styles.css', './app.js', './ubicaciones.js', './version.js', './manifest.json']; 
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
