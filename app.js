@@ -368,8 +368,10 @@ async function flujoInscripcion() {
       const ids = ['ck1', 'ck2', 'ck3'];
       const faltante = ids.map(id => host.querySelector('#' + id)).find(el => !el.checked);
       if (faltante) {
+        const body = host.querySelector('.modal-body');
         const linea = faltante.closest('.check-line');
-        linea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const delta = linea.getBoundingClientRect().top - body.getBoundingClientRect().top;
+        body.scrollBy({ top: delta - 40, behavior: 'smooth' });
         linea.classList.add('shake');
         setTimeout(() => linea.classList.remove('shake'), 500);
         return false;
