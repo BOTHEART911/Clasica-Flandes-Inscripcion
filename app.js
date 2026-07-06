@@ -415,8 +415,8 @@ function construirFormulario(pre) {
     <div class="fld"><label>Celular (10 dígitos)</label><input id="f_CELULAR" inputmode="numeric" maxlength="10" value="${pre.CELULAR || ''}"></div>
     <div class="fld"><label>EPS</label><select id="f_EPS"><option value="">—</option>${opciones([...(S.boot.eps || []), 'OTRA'], pre.EPS)}</select></div>
     <div class="fld fld-full"><label>Correo</label><input id="f_CORREO" type="email" value="${pre.CORREO || ''}"></div>
-    <div class="fld"><label>Departamento</label><select id="f_DEPARTAMENTO"><option value="">—</option>${opciones(deptos, pre.DEPARTAMENTO)}</select></div>
-    <div class="fld"><label>Municipio</label><select id="f_MUNICIPIO"><option value="">—</option></select></div>
+    <div class="fld"><label>Departamento de procedencia</label><select id="f_DEPARTAMENTO"><option value="">—</option>${opciones(deptos, pre.DEPARTAMENTO)}</select></div>
+    <div class="fld"><label>Municipio de procedencia</label><select id="f_MUNICIPIO"><option value="">—</option></select></div>
     <div class="fld"><label id="lbl_contacto">Contacto de emergencia</label><input id="f_CONTACTO_EMERGENCIA" value="${pre.CONTACTO_EMERGENCIA || ''}"></div>
     <div class="fld"><label id="lbl_tel_emerg">Tel. emergencia (10 dígitos)</label><input id="f_TEL_EMERGENCIA" inputmode="numeric" maxlength="10" value="${pre.TEL_EMERGENCIA || ''}"></div>
     <div class="fld fld-full"><label>Categoría</label><select id="f_CATEGORIA"><option value="">Selecciona tu género primero</option></select></div>
