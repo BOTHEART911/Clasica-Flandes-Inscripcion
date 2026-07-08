@@ -107,9 +107,9 @@
         <div id="pane-doc" class="login-pane active">
           <label for="loginDoc">Número de documento</label>
           <div class="input-wrap">
-            <input id="loginDoc" type="password" inputmode="numeric" maxlength="10"
-                   placeholder="••••••••••" autocomplete="off">
-            <button type="button" id="eyeDoc" class="eye-btn" aria-label="Mostrar documento"></button>
+            <input id="loginDoc" type="text" inputmode="numeric" maxlength="10"
+                   placeholder="Número de documento" autocomplete="off">
+            <button type="button" id="eyeDoc" class="eye-btn" aria-label="Ocultar documento"></button>
           </div>
           <button id="btnLogin" class="btn btn-primary btn-lg btn-block mt-md">Continuar</button>
         </div>
@@ -180,7 +180,7 @@
     <div class="acciones">
       <button id="btnEditarRegistro" class="btn btn-primary">Editar registro</button>
       <button id="btnMencion" class="btn btn-accent">Generar mención</button>
-      <button id="btnComunicados" class="btn btn-ghost">Comunicados</button>
+      <button id="btnComunicados" class="btn btn-ghost">Comunicados <span id="comBadge" class="com-badge hidden">0</span></button>
     </div>
   </section>
 
