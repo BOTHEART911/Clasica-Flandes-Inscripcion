@@ -375,3 +375,23 @@ input[type=file] { padding: 10px; font-size: .9rem; }
 .swal2-title { font-family: var(--font-display) !important; color: var(--primary) !important; }
 .swal2-styled.swal2-confirm { background: var(--primary) !important; border-radius: var(--r-md) !important; }
 .swal2-styled.swal2-cancel { background: var(--error) !important; border-radius: var(--r-md) !important; }
+
+/* ===== Comunicados: badge de no leídos, cuerpo y compartir ===== */
+.com-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px;
+  background: #c0392b; color: #fff; border-radius: var(--r-pill);
+  font-size: .72rem; font-weight: 800; line-height: 1; vertical-align: middle;
+}
+.com-badge.hidden { display: none; }
+
+#comunicadosList .com .com-cuerpo { color: var(--text-main); line-height: 1.5; margin-bottom: 10px; }
+
+#comunicadosList .btn-compartir {
+  display: inline-flex; align-items: center; gap: 8px; width: auto;
+  padding: 8px 14px; margin-top: 4px; font-size: .85rem;
+}
+#comunicadosList .btn-compartir svg { width: 18px; height: 18px; }
+
+.share-menu { display: grid; gap: 10px; margin-top: 6px; }
+.share-menu .btn-block { width: 100%; }
