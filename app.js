@@ -20,7 +20,8 @@ const IC = {
   eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>',
   logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>',
   cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>'
 };
 
 /* ================= LOADER GLOBAL ================= */
@@ -84,12 +85,27 @@ function parseFecha_(v) {
   if (!v) return null;
   if (v instanceof Date) return isNaN(v) ? null : v;
   const s = String(v).trim();
+  /* Si trae zona horaria explícita (Z u offset ±HH:MM) respétala: así evitamos
+     el desfase de día/hora cuando el backend serializa una celda de tipo Fecha
+     como UTC (…T02:08:12Z). */
+  if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) {
+    const dz = new Date(s);
+    if (!isNaN(dz)) return dz;
+  }
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
   if (m) return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
   m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
   const d = new Date(s); return isNaN(d) ? null : d;
 }
+
+/* Escapa HTML (texto de comunicados que se inyecta con innerHTML). */
+function escHtml_(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+/* Escapa y convierte saltos de línea (\r\n, \r, \n) en <br>. */
+function nl2br_(s) { return escHtml_(s).replace(/\r\n|\r|\n/g, '<br>'); }
 
 /* "Domingo, 5 de julio de 2026 - 12:04 PM" */
 function fechaLargaEs_(v) {
@@ -193,13 +209,16 @@ function wire() {
   /* Login: pestañas */
   $$('.login-tab').forEach(t => t.addEventListener('click', () => cambiarPane(t.dataset.pane)));
 
-  /* Login: ojo mostrar/ocultar documento */
-  const eye = $('eyeDoc'); eye.innerHTML = IC.eye;
+  /* Login: ojo mostrar/ocultar documento.
+     El documento inicia VISIBLE (type=text); el ojo empieza en "eyeOff"
+     (opción de ocultar). Al pulsar alterna a password y muestra "eye". */
+  const eye = $('eyeDoc'); eye.innerHTML = IC.eyeOff;
   eye.addEventListener('click', () => {
     const inp = $('loginDoc');
     const oculto = inp.type === 'password';
     inp.type = oculto ? 'text' : 'password';
     eye.innerHTML = oculto ? IC.eyeOff : IC.eye;
+    eye.setAttribute('aria-label', oculto ? 'Ocultar documento' : 'Mostrar documento');
   });
 
   /* Login por documento */
@@ -677,7 +696,23 @@ function entrarInicio() {
   if (urlCat) { icoCat.src = driveImg_(urlCat); icoCat.hidden = false; }
   else icoCat.hidden = true;
   iniciarContador();
+  actualizarBadgeComunicados();   // contador de comunicados no leídos
   show('inicio');
+}
+
+/* ===== Comunicados no leídos (badge en el botón "Comunicados") ===== */
+function comLeidos_() { try { return JSON.parse(localStorage.getItem('clasica_com_leidos') || '[]'); } catch (_) { return []; } }
+function guardarComLeidos_(ids) { try { localStorage.setItem('clasica_com_leidos', JSON.stringify(ids)); } catch (_) { } }
+async function actualizarBadgeComunicados() {
+  const badge = $('comBadge'); if (!badge) return;
+  try {
+    const coms = await api('listarComunicados', {}, { silent: true });
+    S._coms = coms || [];
+    const leidos = comLeidos_();
+    const noLeidos = S._coms.filter(c => leidos.indexOf(String(c.ID)) === -1).length;
+    if (noLeidos > 0) { badge.textContent = noLeidos > 99 ? '99+' : String(noLeidos); badge.classList.remove('hidden'); }
+    else badge.classList.add('hidden');
+  } catch (_) { /* silencioso: no bloquear el inicio por el badge */ }
 }
 
 let _cdTimer = null;
@@ -737,12 +772,59 @@ async function abrirComunicados() {
   $('comunicadosList').innerHTML = '<p class="muted">Cargando…</p>';
   try {
     const coms = await api('listarComunicados');
-    $('comunicadosList').innerHTML = coms.length ? coms.map(c => `
+    S._coms = coms || [];
+    $('comunicadosList').innerHTML = coms.length ? coms.map((c, i) => `
       <div class="com ${String(c.DESTACADO).toUpperCase() === 'SI' ? 'dest' : ''}">
-        <div class="fecha">${fechaLargaEs_(c.FECHA)}</div>
-        <h4>${c.TITULO}</h4>
-        <div>${(c.CUERPO || '').replace(/\n/g, '<br>')}</div>
+        <div class="fecha">${c.FECHA_FMT || fechaLargaEs_(c.FECHA)}</div>
+        <h4>${escHtml_(c.TITULO)}</h4>
+        <div class="com-cuerpo">${nl2br_(c.CUERPO)}</div>
         ${c.IMAGEN_URL ? `<img src="${driveImg_(c.IMAGEN_URL)}">` : ''}
+        <button type="button" class="btn btn-ghost btn-compartir" data-idx="${i}">${IC.share}<span>Compartir</span></button>
       </div>`).join('') : '<p class="muted">Aún no hay comunicados.</p>';
+
+    // Al abrir, todos quedan como leídos → oculta el badge del inicio.
+    guardarComLeidos_(coms.map(c => String(c.ID)));
+    const b = $('comBadge'); if (b) b.classList.add('hidden');
+
+    // Enlaza los botones "Compartir".
+    $$('.btn-compartir', $('comunicadosList')).forEach(btn =>
+      btn.addEventListener('click', () => compartirComunicado(S._coms[+btn.dataset.idx])));
   } catch (e) { $('comunicadosList').innerHTML = '<p class="muted">' + e.message + '</p>'; }
+}
+
+/* Compartir un comunicado. Usa el share nativo del dispositivo (WhatsApp,
+   Instagram, etc. según lo instalado); si no está disponible, abre un menú. */
+async function compartirComunicado(c) {
+  if (!c) return;
+  const titulo = String(c.TITULO || 'Comunicado — Clásica 2026');
+  const cuerpo = String(c.CUERPO || '').replace(/\r\n|\r|\n/g, '\n');
+  const url = (S.cfg && S.cfg.APP_URL) ? S.cfg.APP_URL : location.href;
+  const texto = `📣 ${titulo}\n\n${cuerpo}`;
+  if (navigator.share) {
+    try { await navigator.share({ title: titulo, text: texto, url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; /* si no, cae al menú */ }
+  }
+  menuCompartir_(titulo, `${texto}\n\n${url}`, url);
+}
+
+/* Menú de compartir de respaldo (escritorio o navegadores sin Web Share API). */
+function menuCompartir_(titulo, texto, url) {
+  const enc = encodeURIComponent(texto), encU = encodeURIComponent(url);
+  const links = [
+    ['WhatsApp', `https://wa.me/?text=${enc}`],
+    ['Telegram', `https://t.me/share/url?url=${encU}&text=${encodeURIComponent(titulo)}`],
+    ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${encU}`],
+    ['X (Twitter)', `https://twitter.com/intent/tweet?text=${enc}`],
+    ['Correo', `mailto:?subject=${encodeURIComponent(titulo)}&body=${enc}`]
+  ];
+  const html = `<div class="share-menu">
+    ${links.map(l => `<a class="btn btn-ghost btn-block" href="${l[1]}" target="_blank" rel="noopener">${l[0]}</a>`).join('')}
+    <button class="btn btn-primary btn-block" id="shareCopy" type="button">Copiar texto</button>
+  </div>`;
+  Swal.fire({ title: 'Compartir', html, showConfirmButton: false, showCloseButton: true });
+  const cp = document.getElementById('shareCopy');
+  if (cp) cp.onclick = async () => {
+    try { await navigator.clipboard.writeText(texto); toast('Texto copiado.', 'success'); }
+    catch (_) { toast('Copia el texto manualmente.', 'info'); }
+  };
 }
